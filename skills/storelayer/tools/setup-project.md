@@ -26,8 +26,9 @@ If this fails, check MCP server configuration:
 ```json
 external_users_register({
   "userId": "test-user-1",
-  "email": "test@example.com",
-  "name": "Test User"
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test@example.com"
 })
 ```
 

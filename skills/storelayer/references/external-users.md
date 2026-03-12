@@ -18,13 +18,27 @@ External users are the end-customers of your loyalty program. They're managed vi
 | `external_users_register`    | write | Register a new user          |
 | `external_users_update`      | write | Update user fields           |
 
+## User Fields
+
+| Field       | Required (register) | Type   | Description               |
+| ----------- | ------------------- | ------ | ------------------------- |
+| `userId`    | Yes                 | string | Unique user ID            |
+| `firstName` | Yes                 | string | First name                |
+| `lastName`  | Yes                 | string | Last name                 |
+| `email`     | No                  | string | User email                |
+| `phone`     | No                  | string | Phone number              |
+| `birthday`  | No                  | string | Birthday (ISO date)       |
+| `gender`    | No                  | string | Gender                    |
+| `metadata`  | No                  | object | Custom key-value metadata |
+
 ## Registering a User
 
 ```json
 external_users_register({
   "userId": "customer-123",
+  "firstName": "Alice",
+  "lastName": "Smith",
   "email": "alice@example.com",
-  "name": "Alice Smith",
   "metadata": {
     "tier": "gold",
     "signupSource": "web"
@@ -39,7 +53,7 @@ external_users_register({
 external_users_get_user({ "userId": "customer-123" })
 
 // Smart lookup (tries ID first, then email)
-external_users_lookup_user({ "identifier": "alice@example.com" })
+external_users_lookup_user({ "lookupValue": "customer-123", "lookupFallbacks": ["alice@example.com"] })
 ```
 
 ## Listing Users
@@ -53,7 +67,7 @@ external_users_list_users({ "limit": 50, "offset": 0 })
 ```json
 external_users_update({
   "userId": "customer-123",
-  "name": "Alice Johnson",
+  "lastName": "Johnson",
   "metadata": { "tier": "platinum" }
 })
 ```
@@ -75,5 +89,6 @@ Use `external_users_register` in a loop for batch imports. Each call is idempote
 ## Gotchas
 
 - User IDs are strings, not numbers
+- `firstName` and `lastName` are **required** when registering — omitting them causes a NOT NULL constraint error
 - `external_users_lookup_user` tries ID first, then email — use it when unsure
 - Metadata is merged on update, not replaced (send only changed fields)

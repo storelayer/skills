@@ -69,10 +69,12 @@ The `$('key')` function returns the resource value registered under that key in 
 
 ### User Data (requires `user` internal resource)
 
-| Expression                    | Resolves To        |
-| ----------------------------- | ------------------ |
-| `{{ $('user').email }}`       | User profile email |
-| `{{ $('user').displayName }}` | User display name  |
+| Expression                  | Resolves To        |
+| --------------------------- | ------------------ |
+| `{{ $('user').email }}`     | User profile email |
+| `{{ $('user').firstName }}` | User first name    |
+| `{{ $('user').lastName }}`  | User last name     |
+| `{{ $('user').phone }}`     | User phone number  |
 
 ### Wallet Data (requires `wallet` internal resource)
 
