@@ -1,0 +1,65 @@
+interface:
+  display_name: "Storelayer"
+  short_description: "Build loyalty programs, promotions, and customer engagement on the Storelayer platform"
+  icon_small: "./assets/storelayer-icon.svg"
+  default_prompt: "Set up a loyalty program with points earning, promotions, and referral rewards using the Storelayer platform."
+
+mcp:
+  server:
+    command: "npx"
+    args: ["@storelayer/mcp-server"]
+    env:
+      STORE_LAYER_API_URL: "https://api.storelayer.io"
+      STORE_LAYER_API_KEY: "${STORE_LAYER_API_KEY}"
+      STORE_LAYER_PROJECT_ID: "${STORE_LAYER_PROJECT_ID}"
+
+agents:
+  - name: loyalty-builder
+    description: "Design and build complete loyalty programs"
+    file: "./loyalty-builder.md"
+  - name: promo-engineer
+    description: "Build promotions, discount scripts, and coupon campaigns"
+    file: "./promo-engineer.md"
+  - name: integration-dev
+    description: "Set up event ingestion and external integrations"
+    file: "./integration-dev.md"
+
+tools:
+  - name: setup-project
+    description: "Step-by-step new project setup"
+    file: "../tools/setup-project.md"
+  - name: test-promotion
+    description: "Test promotions before activation"
+    file: "../tools/test-promotion.md"
+  - name: debug-rules
+    description: "Debug rules and promotions"
+    file: "../tools/debug-rules.md"
+
+references:
+  - name: architecture
+    description: "Platform architecture and patterns"
+    file: "../references/architecture.md"
+  - name: wallet
+    description: "Wallet/ledger system"
+    file: "../references/wallet.md"
+  - name: promotions
+    description: "Promotion engine"
+    file: "../references/promotions.md"
+  - name: referral
+    description: "Referral system"
+    file: "../references/referral.md"
+  - name: events
+    description: "Events and rules"
+    file: "../references/events.md"
+  - name: external-users
+    description: "Customer management"
+    file: "../references/external-users.md"
+  - name: discount-scripts
+    description: "Discount script reference"
+    file: "../references/discount-scripts.md"
+  - name: conditions
+    description: "Condition engine"
+    file: "../references/conditions.md"
+  - name: mcp-tools
+    description: "All MCP tools"
+    file: "../references/mcp-tools.md"
