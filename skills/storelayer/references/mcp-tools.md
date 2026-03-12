@@ -63,11 +63,12 @@ Complete list of tools available via the Storelayer MCP server.
 
 ## Events
 
-| Tool               | Type | Description              |
-| ------------------ | ---- | ------------------------ |
-| `events_get`       | read | Get event by ID          |
-| `events_list`      | read | List events with filters |
-| `events_get_stats` | read | Event stats              |
+| Tool               | Type  | Description                                    |
+| ------------------ | ----- | ---------------------------------------------- |
+| `events_ingest`    | write | Ingest event (triggers rules & wallet actions) |
+| `events_get`       | read  | Get event by ID                                |
+| `events_list`      | read  | List events with filters                       |
+| `events_get_stats` | read  | Event stats                                    |
 
 ## Referral
 

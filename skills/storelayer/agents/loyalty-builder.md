@@ -43,19 +43,24 @@ Before building, present a complete program design:
 ### 3. Implementation Order
 
 1. Create earning rules (event → wallet credit)
-2. Test each rule with `project_test_conditions`
-3. Verify wallet credits appear
-4. Set up any spending/redemption mechanisms
-5. Create promotional overlays (bonus points periods)
+2. Test each rule's conditions with `project_test_conditions`
+3. Ingest a test event with `events_ingest` to trigger the full pipeline
+4. Verify wallet credits appear with `wallet_get_balance`
+5. Set up any spending/redemption mechanisms
+6. Create promotional overlays (bonus points periods)
 
 ### 4. Testing
 
-For each rule:
+For each rule, run the full end-to-end test:
 
-- Test conditions with sample event data
-- Verify wallet balance changes
-- Check transaction history for correct descriptions
-- Test edge cases (zero amount, negative, duplicate events)
+```
+1. project_test_conditions(...)    → Verify conditions match
+2. events_ingest(...)              → Send a real event through the pipeline
+3. wallet_get_balance(...)         → Confirm wallet was credited
+4. user_workflows_list(...)        → Check workflow execution details
+```
+
+Test edge cases: zero amount, negative values, missing fields, duplicate events.
 
 ## Key References
 
@@ -76,4 +81,11 @@ Program: "Bean Counter Rewards"
 - Tiers: Regular (0-499), Silver (500-1999), Gold (2000+)
 ```
 
-Build each component incrementally. Test after each step. Summarize the complete program when done.
+Build each component incrementally. After each rule, verify end-to-end:
+
+```
+events_ingest({ "type": "purchase", "userId": "test-user-1", "payload": { "amount": 5.50 } })
+wallet_get_balance({ "userId": "test-user-1" })  → Expect 5 points (1 per dollar)
+```
+
+Summarize the complete program when done.

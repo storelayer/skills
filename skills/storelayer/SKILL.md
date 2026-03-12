@@ -66,19 +66,38 @@ Map the user's intent to domains:
 
 ### Step 4: Verify End-to-End
 
-After building, verify the chain works:
+After building, **test the full pipeline** by ingesting a real event:
 
-- For rules: event type → conditions → actions → wallet credit
-- For promotions: cart → conditions → script → discounts
+```json
+// 1. Ingest a test event
+events_ingest({
+  "type": "purchase",
+  "userId": "test-user-1",
+  "payload": { "amount": 49.99, "orderId": "test-001" }
+})
+
+// 2. Verify the event was processed
+events_list({ "type": "purchase", "processed": true })
+
+// 3. Check wallet for expected credits
+wallet_get_balance({ "userId": "test-user-1" })
+
+// 4. Check workflow execution details
+user_workflows_list({ "userId": "test-user-1" })
+```
+
+- For rules: `events_ingest` → rule match → action execution → `wallet_get_balance`
+- For promotions: cart → conditions → script → discounts via `promotions_evaluate_cart`
 - Summarize what was built and how pieces connect
 
 ## Recipes
 
 ### Points-for-Purchase (Earn 1 point per dollar)
 
-**Domains:** Rules + Wallet → See `references/wallet.md` and `references/events.md`
+**Domains:** Rules + Wallet + Events → See `references/wallet.md` and `references/events.md`
 
 ```json
+// Step 1: Create the earning rule
 project_add_rule({
   "name": "1 Point Per Dollar",
   "conditions": {
@@ -99,6 +118,16 @@ project_add_rule({
   ],
   "resources": { "event": { "type": "purchase" } }
 })
+
+// Step 2: Test with a real event
+events_ingest({
+  "type": "purchase",
+  "userId": "test-user-1",
+  "payload": { "amount": 49.99, "orderId": "test-001" }
+})
+
+// Step 3: Verify points were awarded
+wallet_get_balance({ "userId": "test-user-1" })
 ```
 
 ### Percentage Discount (10% off everything)
@@ -140,7 +169,7 @@ promotions_create_coupon({ "promotionId": "promo_xxx", "code": "SAVE20", "maxUse
 
 ### Referral Program (Both get 500 points)
 
-**Domains:** Referral + Rules + Wallet → See `references/referral.md`
+**Domains:** Referral + Rules + Wallet + Events → See `references/referral.md`
 
 ```json
 // Step 1: Create referral code
@@ -160,6 +189,16 @@ project_add_rule({
   ],
   "resources": { "event": { "type": "referral.completed" } }
 })
+
+// Step 3: Test — simulate referral completion
+events_ingest({
+  "type": "referral.completed",
+  "userId": "user-123",
+  "payload": { "referrerId": "user-123", "refereeId": "user-456" }
+})
+
+// Step 4: Verify
+wallet_get_balance({ "userId": "user-123" })
 ```
 
 ## Common Mistakes

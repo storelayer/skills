@@ -11,11 +11,12 @@ Events are the backbone of Storelayer's automation. External systems send events
 
 ## MCP Tools — Events
 
-| Tool               | Type | Description              |
-| ------------------ | ---- | ------------------------ |
-| `events_get`       | read | Get event by ID          |
-| `events_list`      | read | List events with filters |
-| `events_get_stats` | read | Event stats by type      |
+| Tool               | Type  | Description                                    |
+| ------------------ | ----- | ---------------------------------------------- |
+| `events_ingest`    | write | Ingest event (triggers rules & wallet actions) |
+| `events_get`       | read  | Get event by ID                                |
+| `events_list`      | read  | List events with filters                       |
+| `events_get_stats` | read  | Event stats by type                            |
 
 ## MCP Tools — Rules
 
@@ -31,7 +32,23 @@ Events are the backbone of Storelayer's automation. External systems send events
 
 ## Event Ingestion
 
-External systems send events via API:
+### Via MCP Tool (recommended for agents)
+
+```json
+events_ingest({
+  "type": "purchase",
+  "userId": "customer-123",
+  "payload": {
+    "amount": 49.99,
+    "orderId": "order-789",
+    "items": [{ "id": "item-1", "name": "Latte", "price": 4.99 }]
+  }
+})
+```
+
+Returns `{ id: "evt_xxx", status: "accepted" }`. The event is stored, queued for rule evaluation, and tracked in the user's workflow history.
+
+### Via REST API (for external integrations)
 
 ```
 POST /projects/{projectId}/ingest/events

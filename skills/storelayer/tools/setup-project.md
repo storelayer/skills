@@ -54,7 +54,7 @@ project_add_rule({
 })
 ```
 
-### 4. Test the Rule
+### 4. Test the Rule Conditions
 
 ```json
 project_test_conditions({
@@ -68,13 +68,27 @@ project_test_conditions({
 })
 ```
 
-### 5. Verify Wallet
+### 5. Ingest a Test Event
+
+```json
+events_ingest({
+  "type": "signup",
+  "userId": "test-user-1",
+  "payload": { "source": "setup-wizard" }
+})
+```
+
+This stores the event, queues it for rule evaluation, and triggers the Welcome Bonus action.
+
+### 6. Verify Wallet
 
 ```json
 wallet_get_balance({ "userId": "test-user-1" })
 ```
 
-### 6. Create a Test Promotion (Optional)
+Expect to see 100 points from the Welcome Bonus rule.
+
+### 7. Create a Test Promotion (Optional)
 
 ```json
 promotions_create({
@@ -88,12 +102,13 @@ promotions_create({
 })
 ```
 
-### 7. Summary
+### 8. Summary
 
 After setup, confirm:
 
 - [ ] Project config loads successfully
 - [ ] Test user registered
 - [ ] At least one event rule created and tested
-- [ ] Wallet operations working
+- [ ] Event ingested via `events_ingest` and processed
+- [ ] Wallet balance reflects rule actions
 - [ ] (Optional) Promotion created and tested

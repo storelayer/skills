@@ -19,7 +19,15 @@ events_list()
 events_get_stats()
 ```
 
-Verify events of the expected type are arriving. If no events, the issue is on the ingestion side.
+Verify events of the expected type are arriving. If no events, ingest one to test:
+
+```json
+events_ingest({
+  "type": "purchase",
+  "userId": "test-user-1",
+  "payload": { "amount": 49.99 }
+})
+```
 
 ### Step 3: Check `resources` Field
 
