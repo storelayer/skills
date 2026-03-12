@@ -67,15 +67,63 @@ Spending follows **FEFO** (First-Expire-First-Out) — assets expiring soonest a
 wallet_get_balance({ "userId": "customer-123" })
 ```
 
-Response includes balance per asset type:
+Response returns each asset type with full balance details:
 
 ```json
 {
-  "balances": {
-    "points": { "available": 450, "pending": 0, "total": 450 }
+  "points": {
+    "assetType": "points",
+    "balance": 450,
+    "lifetimeEarned": 1000,
+    "lifetimeSpent": 550,
+    "lifetimeExpired": 0,
+    "nextExpiration": "2027-06-01T00:00:00Z"
+  },
+  "coffee_stamps": {
+    "assetType": "coffee_stamps",
+    "balance": 3,
+    "lifetimeEarned": 3,
+    "lifetimeSpent": 0,
+    "lifetimeExpired": 0,
+    "nextExpiration": null
   }
 }
 ```
+
+**Fields per asset type:**
+
+| Field             | Type           | Description                      |
+| ----------------- | -------------- | -------------------------------- |
+| `assetType`       | string         | Asset type identifier            |
+| `balance`         | number         | Current available balance        |
+| `lifetimeEarned`  | number         | Total earned across all time     |
+| `lifetimeSpent`   | number         | Total spent across all time      |
+| `lifetimeExpired` | number         | Total expired across all time    |
+| `nextExpiration`  | string \| null | ISO date of next asset to expire |
+
+## Using Wallet in Rule Conditions
+
+When a wallet internal resource is configured (key: `wallet`, entity: `wallet`), the balance data is available in rule conditions using the `$()` function:
+
+```
+{{ $('wallet').points.balance }}           → current points balance
+{{ $('wallet').coffee_stamps.balance }}     → current coffee stamps balance
+{{ $('wallet').points.lifetimeEarned }}     → total points ever earned
+{{ $('wallet').coffee_stamps.balance % 4 }} → modulo check (e.g. every 4th stamp)
+```
+
+**Example: Free coffee on every 4th purchase**
+
+```json
+{
+  "leftValue": "{{ $('wallet').coffee_stamps.balance % 4 }}",
+  "operator": "equals",
+  "rightValue": 0,
+  "rightType": "number"
+}
+```
+
+> **Important:** You must create an internal resource with key `wallet` and entity `wallet` (or toolName `wallet.get_balance`) for wallet data to be available in rule conditions. Without this resource, `$('wallet')` returns `undefined`.
 
 ## Transaction History
 
@@ -111,3 +159,4 @@ Set `expiresAt` on credits. Expired assets are automatically excluded from balan
 - `amount` must be positive for both credit and debit
 - Debit will fail if insufficient balance
 - `referenceId` is not enforced as unique — use it for tracking, not dedup
+- In rule conditions, use `$('wallet').assetType.balance` syntax — the wallet resource must be configured for this to work

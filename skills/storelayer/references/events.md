@@ -67,7 +67,7 @@ Headers: X-API-Key: <key>
 
 ## Creating Rules
 
-A rule has: name, conditions (when to fire), actions (what to do), and resources (what events to match).
+A rule has: name, conditions (when to fire), actions (what to do), and resources (what events to match + what data to fetch).
 
 ```json
 project_add_rule({
@@ -75,13 +75,13 @@ project_add_rule({
   "conditions": {
     "conditions": [
       {
-        "leftValue": "{{ event.type }}",
+        "leftValue": "{{ $('event').type }}",
         "operator": "equals",
         "rightValue": "purchase",
         "rightType": "string"
       },
       {
-        "leftValue": "{{ event.payload.amount }}",
+        "leftValue": "{{ $('event').payload.amount }}",
         "operator": "gt",
         "rightValue": 0,
         "rightType": "number"
@@ -94,8 +94,8 @@ project_add_rule({
       "type": "reward",
       "config": {
         "assetType": "points",
-        "amount": "{{ event.payload.amount }}",
-        "description": "Purchase reward for order {{ event.payload.orderId }}"
+        "amount": "{{ $('event').payload.amount }}",
+        "description": "Purchase reward for order {{ $('event').payload.orderId }}"
       }
     }
   ],
@@ -122,15 +122,58 @@ project_add_rule({
 | `webhook`  | `url`, `method`, `headers`, `body`                | Send HTTP request |
 | `workflow` | `workflowId`, `input`                             | Trigger workflow  |
 
-### Template Expressions
+### Template Expressions in Actions
 
-Actions support Handlebars-style templates:
+Actions support `{{ }}` template expressions with the `$()` function:
 
-- `{{ event.type }}` — Event type
-- `{{ event.payload.amount }}` — Nested payload values
-- `{{ event.userId }}` — User who triggered the event
-- `{{ user.email }}` — User profile fields
-- `{{ history.amount }}` — Historical aggregations
+- `{{ $('event').type }}` — Event type
+- `{{ $('event').payload.amount }}` — Nested payload values
+- `{{ $('event').userId }}` — User who triggered the event
+- `{{ $('user').email }}` — User profile fields (requires `user` resource)
+- `{{ $('wallet').points.balance }}` — Wallet balance (requires `wallet` resource)
+
+## Using Wallet Data in Rules
+
+To access wallet balances in rule conditions, add an internal resource with entity `wallet`:
+
+```json
+project_add_rule({
+  "name": "Free Coffee on Every 4th Purchase",
+  "conditions": {
+    "conditions": [
+      {
+        "leftValue": "{{ $('event').type }}",
+        "operator": "equals",
+        "rightValue": "purchase",
+        "rightType": "string"
+      },
+      {
+        "leftValue": "{{ $('wallet').coffee_stamps.balance % 4 }}",
+        "operator": "equals",
+        "rightValue": 0,
+        "rightType": "number"
+      }
+    ],
+    "combinator": "AND"
+  },
+  "actions": [
+    {
+      "type": "reward",
+      "config": {
+        "assetType": "free_coffee",
+        "amount": 1,
+        "description": "Free coffee reward!"
+      }
+    }
+  ],
+  "resources": {
+    "event": { "type": "purchase" },
+    "wallet": { "type": "internal", "entity": "wallet" }
+  }
+})
+```
+
+> **Important:** The `wallet` resource must be declared in `resources` for `$('wallet')` to resolve. Without it, wallet data is not fetched and expressions return `undefined`/`NaN`.
 
 ## Testing Rules
 
@@ -140,7 +183,7 @@ Always test conditions before creating rules:
 project_test_conditions({
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
     ],
     "combinator": "AND"
   },
@@ -167,6 +210,7 @@ Returns `{ match: true/false, details: [...] }` — shows which conditions passe
 ## Gotchas
 
 - **Missing `resources`** — Rules MUST have `resources: { event: { type: "..." } }` to match events. This is the #1 cause of rules not firing.
-- **Template syntax** — Use `{{ }}` (double curly braces) for template expressions in conditions and actions
-- **Condition testing** — Always test with `project_test_conditions` before deploying. The `context` must include the full event shape.
+- **Missing internal resources** — To use `$('wallet')` or `$('user')` in conditions, you must declare the corresponding internal resource in `resources`. Without it, the data is not fetched.
+- **Template syntax** — Use `{{ $('resource').field }}` syntax for accessing resource data in conditions and actions
+- **Condition testing** — Always test with `project_test_conditions` before deploying. The `context` must include the full data shape for all referenced resources.
 - **Queue processing** — Events are batched (10 events, 5s timeout). There's a small delay between ingestion and rule execution.
