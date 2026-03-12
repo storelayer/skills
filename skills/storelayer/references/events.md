@@ -116,11 +116,17 @@ project_add_rule({
 
 ### Action Types
 
-| Type       | Config Fields                                     | Description       |
-| ---------- | ------------------------------------------------- | ----------------- |
-| `reward`   | `assetType`, `amount`, `description`, `expiresAt` | Credit wallet     |
-| `webhook`  | `url`, `method`, `headers`, `body`                | Send HTTP request |
-| `workflow` | `workflowId`, `input`                             | Trigger workflow  |
+| Type                | Config Fields                                          | Description                        |
+| ------------------- | ------------------------------------------------------ | ---------------------------------- |
+| `reward`            | `assetType`, `amount`, `description`, `expirationDate` | Credit wallet (earn points/tokens) |
+| `redemption`        | `assetType`, `amount`, `description`                   | Debit wallet (spend points/tokens) |
+| `integration`       | `integrationId`, `payloadTemplate`                     | Trigger an external integration    |
+| `notify`            | `title`, `message`                                     | Send a notification                |
+| `tag`               | `tag`                                                  | Tag the user                       |
+| `apply_referral`    | `code`, `refereeId`, `metadata`                        | Apply a referral code              |
+| `complete_referral` | `refereeId`                                            | Mark a referral as completed       |
+| `mark_code_used`    | `code`, `refereeId`                                    | Mark a referral code as used       |
+| `custom`            | `key`                                                  | Custom action (extensible)         |
 
 ### Template Expressions in Actions
 
