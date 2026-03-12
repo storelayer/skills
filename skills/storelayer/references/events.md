@@ -116,17 +116,38 @@ project_add_rule({
 
 ### Action Types
 
-| Type                | Config Fields                                          | Description                        |
-| ------------------- | ------------------------------------------------------ | ---------------------------------- |
-| `reward`            | `assetType`, `amount`, `description`, `expirationDate` | Credit wallet (earn points/tokens) |
-| `redemption`        | `assetType`, `amount`, `description`                   | Debit wallet (spend points/tokens) |
-| `integration`       | `integrationId`, `payloadTemplate`                     | Trigger an external integration    |
-| `notify`            | `title`, `message`                                     | Send a notification                |
-| `tag`               | `tag`                                                  | Tag the user                       |
-| `apply_referral`    | `code`, `refereeId`, `metadata`                        | Apply a referral code              |
-| `complete_referral` | `refereeId`                                            | Mark a referral as completed       |
-| `mark_code_used`    | `code`, `refereeId`                                    | Mark a referral code as used       |
-| `custom`            | `key`                                                  | Custom action (extensible)         |
+| Type                | Config Fields                                                                        | Description                        |
+| ------------------- | ------------------------------------------------------------------------------------ | ---------------------------------- |
+| `reward`            | `assetType`, `amount`, `description`, `expiresIn`, `expiresInUnit`, `expirationDate` | Credit wallet (earn points/tokens) |
+| `redemption`        | `assetType`, `amount`, `description`                                                 | Debit wallet (spend points/tokens) |
+| `integration`       | `integrationId`, `payloadTemplate`                                                   | Trigger an external integration    |
+| `notify`            | `title`, `message`                                                                   | Send a notification                |
+| `tag`               | `tag`                                                                                | Tag the user                       |
+| `apply_referral`    | `code`, `refereeId`, `metadata`                                                      | Apply a referral code              |
+| `complete_referral` | `refereeId`                                                                          | Mark a referral as completed       |
+| `mark_code_used`    | `code`, `refereeId`                                                                  | Mark a referral code as used       |
+| `custom`            | `key`                                                                                | Custom action (extensible)         |
+
+### Reward Expiry
+
+Use `expiresIn` (number) + `expiresInUnit` to set point expiration relative to the time of earning:
+
+```json
+{
+  "type": "reward",
+  "config": {
+    "assetType": "points",
+    "amount": 100,
+    "description": "Welcome bonus",
+    "expiresIn": 30,
+    "expiresInUnit": "days"
+  }
+}
+```
+
+Supported units: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`, `years`. Default unit is `days`.
+
+`expiresIn` takes priority over `expirationDate`. Use `expirationDate` (ISO string) only when you need a fixed expiry date.
 
 ### Template Expressions in Actions
 
