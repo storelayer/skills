@@ -73,6 +73,43 @@ const { DurableObject, Client } = createDurableEffect({
 - User-scoped: `${projectId}_${userId}` (wallet, loyalty-events)
 - Project-scoped: `${projectId}` (promotions, external-users, project config)
 
+## WebSocket Real-Time Updates
+
+Durable Objects support WebSocket Hibernation API for real-time client communication. The workflow execution DO uses this for live workflow monitoring:
+
+```
+Dashboard (WebSocket client)
+  ↓
+API: GET /projects/:projectId/workflows/ws?token=JWT&workflowId=...
+  ↓
+Middleware: auth accepts ?token= query param for WebSocket upgrade requests
+  ↓
+Workflow Execution DO (WebSocket Hibernation API)
+  ├── acceptWebSocket(server, tags)     — tag: "workflow:{id}" + "all"
+  ├── webSocketMessage / Close / Error  — lifecycle handlers
+  └── broadcast after mutations         — step:added, workflow:status, etc.
+```
+
+**Server → Client events:** `snapshot`, `workflow:created`, `workflow:status`, `step:added`, `step:updated`, `rules:added`, `action:added`, `action:updated`, `pong`
+
+**Client → Server:** `ping`, `subscribe` (with optional `workflowId` filter)
+
+Connections without a `workflowId` receive events for all workflows in the project (used by the list page). Connections with a `workflowId` receive only events for that workflow.
+
+## Expression Engine (`@storelayer/expressions`)
+
+A dedicated package for safe expression evaluation using AST parsing (jsep). No `eval()` or `new Function()`.
+
+**Enforced syntax:** All expressions MUST be wrapped in `{{ }}`. Bare strings like `event.type` or `$('event').type` are returned as-is (not evaluated).
+
+**Scope available inside `{{ }}`:**
+
+- `$('resourceKey')` — access context resources (the only way)
+- `$now` — current ISO timestamp, `$today` — current date (YYYY-MM-DD)
+- Standard globals: `Math`, `JSON`, `String`, `Number`, `Boolean`, `Array`, `Object`, `Date`
+- Utility functions: `parseInt`, `parseFloat`, `isNaN`, `isFinite`
+- Supports: member access, method calls, binary/logical/unary/ternary operators, array expressions, arrow functions (`item => item.name`)
+
 ## Response Format
 
 ```typescript
@@ -85,19 +122,19 @@ const { DurableObject, Client } = createDurableEffect({
 
 ## Domain Map
 
-| Domain         | DO Scope       | Key Operations                           |
-| -------------- | -------------- | ---------------------------------------- |
-| Wallet         | user-scoped    | earn, spend, balance, transactions       |
-| Promotions     | project-scoped | create, evaluate cart, coupons, stacking |
-| External Users | project-scoped | register, lookup, list, update           |
-| Events         | user-scoped    | track, list, stats                       |
-| Rules/Project  | project-scoped | add/update/remove rules, config          |
-| Referral       | project-scoped | create codes, apply, leaderboard         |
-| Workflows      | project-scoped | multi-step automation                    |
-| Catalog        | project-scoped | products, categories                     |
-| Stores         | project-scoped | store locations                          |
-| Support        | project-scoped | support tickets                          |
-| Surveys        | project-scoped | customer surveys                         |
+| Domain         | DO Scope       | Key Operations                                                     |
+| -------------- | -------------- | ------------------------------------------------------------------ |
+| Wallet         | user-scoped    | earn, spend, balance, transactions                                 |
+| Promotions     | project-scoped | create, evaluate cart, coupons, stacking                           |
+| External Users | project-scoped | register, lookup, list, update                                     |
+| Events         | user-scoped    | track, list, stats                                                 |
+| Rules/Project  | project-scoped | add/update/remove rules, config                                    |
+| Referral       | project-scoped | create codes, apply, leaderboard                                   |
+| Workflows      | project-scoped | multi-step automation, WebSocket live updates, R2 context archival |
+| Catalog        | project-scoped | products, categories                                               |
+| Stores         | project-scoped | store locations                                                    |
+| Support        | project-scoped | support tickets                                                    |
+| Surveys        | project-scoped | customer surveys                                                   |
 
 ## Workers for Platforms (Tenant Workers)
 

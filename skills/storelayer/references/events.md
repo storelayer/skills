@@ -236,10 +236,51 @@ Returns `{ match: true/false, details: [...] }` — shows which conditions passe
 | `cart_abandoned`     | cartId, items, total             |
 | `review_submitted`   | productId, rating                |
 
+## Workflow Execution & Real-Time Monitoring
+
+When an event is ingested, it creates a workflow execution with these steps:
+
+1. **trigger** — Event received and validated
+2. **resource_resolution** — Internal resources (wallet, user, etc.) are fetched
+3. **rule_matching** — Conditions evaluated against resolved context
+4. **action_execution** — Matched rule actions are executed
+
+The resolved context (all resource data at execution time) is archived to R2 for full observability. The workflow detail page (`/projects/:projectId/workflows/:id`) shows the complete execution trace.
+
+### WebSocket Live Updates
+
+The workflow detail and list pages connect via WebSocket for real-time updates:
+
+```
+GET /projects/:projectId/workflows/ws?token=JWT&workflowId=...
+```
+
+- **Detail page**: passes `workflowId` to receive only that workflow's events
+- **List page**: omits `workflowId` to receive all workflow events (new rows appear, statuses update live)
+- Events: `workflow:created`, `workflow:status`, `step:added`, `step:updated`, `rules:added`, `action:added`, `action:updated`
+
+## Event Resource Schema
+
+The event resource passed to rules must be an object with required `type` and `payload` fields:
+
+```json
+{
+  "type": "purchase", // required: string
+  "userId": "customer-123", // optional: string
+  "payload": {
+    // required: object
+    "amount": 49.99
+  }
+}
+```
+
+Null or non-object event resources are rejected during rule validation.
+
 ## Gotchas
 
 - **Missing `resources`** — Rules MUST have `resources: { event: { type: "..." } }` to match events. This is the #1 cause of rules not firing.
 - **Missing internal resources** — To use `$('wallet')` or `$('user')` in conditions, you must declare the corresponding internal resource in `resources`. Without it, the data is not fetched.
-- **Template syntax** — Use `{{ $('resource').field }}` syntax for accessing resource data in conditions and actions
+- **Template syntax** — Use `{{ $('resource').field }}` syntax for accessing resource data in conditions and actions. Bare expressions without `{{ }}` wrappers are NOT evaluated.
 - **Condition testing** — Always test with `project_test_conditions` before deploying. The `context` must include the full data shape for all referenced resources.
 - **Queue processing** — Events are batched (10 events, 5s timeout). There's a small delay between ingestion and rule execution.
+- **Action schema strictness** — Action configs use strict validation (no extra fields allowed). Only use fields defined in the schema for each action type.

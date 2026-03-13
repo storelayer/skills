@@ -94,14 +94,19 @@ The `$('key')` function returns the resource value registered under that key in 
 
 ### Computed Expressions
 
-Expressions support JavaScript operators and built-in functions:
+Expressions support JavaScript operators, built-in functions, and arrow functions:
 
 ```
-{{ $('event').payload.amount * 2 }}              → arithmetic
-{{ $('wallet').points.balance >= 100 }}          → comparison (returns boolean)
-{{ $('event').payload.items.length }}             → array length
-{{ Math.floor($('wallet').points.balance / 10) }} → Math functions
+{{ $('event').payload.amount * 2 }}                    → arithmetic
+{{ $('wallet').points.balance >= 100 }}                → comparison (returns boolean)
+{{ $('event').payload.items.length }}                   → array length
+{{ Math.floor($('wallet').points.balance / 10) }}       → Math functions
+{{ $('event').payload.items.map(i => i.name) }}         → arrow functions
+{{ $('event').amount > 50 ? 'high' : 'low' }}           → ternary
+{{ $('user').email.split('@')[0] }}                     → method calls
 ```
+
+> **Important:** Expressions are evaluated via safe AST parsing (`@storelayer/expressions`). No `eval()` or `new Function()` — only whitelisted globals (`Math`, `JSON`, `String`, `Number`, `Boolean`, `Array`, `Object`, `Date`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`) are available. Bare strings without `{{ }}` wrappers are returned as-is (not evaluated).
 
 ## Condition Fields (Promotions)
 
