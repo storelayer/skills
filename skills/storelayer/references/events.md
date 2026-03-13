@@ -130,7 +130,7 @@ project_add_rule({
 
 ### Reward Expiry
 
-Use `expiresIn` (number) + `expiresInUnit` to set point expiration relative to the time of earning:
+Use `expiresIn` (number) + `expiresInUnit` to set point expiration relative to the time of earning. **Both fields must be provided together** — setting `expiresIn` without `expiresInUnit` (or vice versa) will fail validation:
 
 ```json
 {
@@ -145,7 +145,9 @@ Use `expiresIn` (number) + `expiresInUnit` to set point expiration relative to t
 }
 ```
 
-Supported units: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`, `years`. Default unit is `days`.
+Supported units: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`, `years`.
+
+> **Important:** Only use the fields defined in the schema for each action type. Do not add extra fields — the API uses strict validation (no passthrough).
 
 `expiresIn` takes priority over `expirationDate`. Use `expirationDate` (ISO string) only when you need a fixed expiry date.
 
