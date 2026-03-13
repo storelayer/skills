@@ -55,7 +55,7 @@ project_test_conditions({
 
 The response shows which conditions passed/failed. Common issues:
 
-- Template expression typo (`{{ event.pyaload.amount }}` instead of `{{ event.payload.amount }}`)
+- Template expression typo (`{{ $('event').pyaload.amount }}` instead of `{{ $('event').payload.amount }}`)
 - Wrong operator (using `equals` with a number instead of `gte`)
 - Wrong `rightType` (string vs number mismatch)
 
@@ -71,7 +71,7 @@ If conditions pass but no wallet credit:
 
 ### Check Template Resolution
 
-If the rule uses `"amount": "{{ event.payload.amount }}"`:
+If the rule uses `"amount": "{{ $('event').payload.amount }}"`:
 
 - Verify the event payload actually has an `amount` field
 - Verify it's a number, not a string

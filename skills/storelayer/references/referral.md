@@ -53,7 +53,7 @@ project_add_rule({
   "name": "Referral Reward - Referrer",
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "referral.completed", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "referral.completed", "rightType": "string" }
     ],
     "combinator": "AND"
   },

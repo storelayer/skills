@@ -41,7 +41,7 @@ project_add_rule({
   "name": "Welcome Bonus",
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "signup", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "signup", "rightType": "string" }
     ],
     "combinator": "AND"
   },
@@ -61,7 +61,7 @@ project_add_rule({
 project_test_conditions({
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "signup", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "signup", "rightType": "string" }
     ],
     "combinator": "AND"
   },

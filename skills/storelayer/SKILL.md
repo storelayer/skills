@@ -102,7 +102,7 @@ project_add_rule({
   "name": "1 Point Per Dollar",
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
     ],
     "combinator": "AND"
   },
@@ -111,8 +111,8 @@ project_add_rule({
       "type": "reward",
       "config": {
         "assetType": "points",
-        "amount": "{{ event.payload.amount }}",
-        "description": "Purchase reward: {{ event.payload.amount }} points"
+        "amount": "{{ $('event').payload.amount }}",
+        "description": "Purchase reward: {{ $('event').payload.amount }} points"
       }
     }
   ],
@@ -180,7 +180,7 @@ project_add_rule({
   "name": "Referral Reward",
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "referral.completed", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "referral.completed", "rightType": "string" }
     ],
     "combinator": "AND"
   },
