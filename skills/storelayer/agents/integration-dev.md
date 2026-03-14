@@ -90,7 +90,7 @@ project_add_rule({
   "name": "Purchase Points",
   "conditions": {
     "conditions": [
-      { "leftValue": "{{ event.type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
+      { "leftValue": "{{ $('event').type }}", "operator": "equals", "rightValue": "purchase", "rightType": "string" }
     ],
     "combinator": "AND"
   },
@@ -99,7 +99,7 @@ project_add_rule({
       "type": "reward",
       "config": {
         "assetType": "points",
-        "amount": "{{ event.payload.amount }}",
+        "amount": "{{ $('event').payload.amount }}",
         "description": "Purchase reward"
       }
     }
