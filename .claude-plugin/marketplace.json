@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "storelayer",
+  "description": "Storelayer commerce platform skills for Claude Code.",
+  "owner": {
+    "name": "Storelayer",
+    "url": "https://github.com/storelayer"
+  },
+  "plugins": [
+    {
+      "name": "storelayer",
+      "description": "Build loyalty programs, promotions, wallets, referrals, and customer engagement on Storelayer.",
+      "source": "./",
+      "category": "commerce"
+    }
+  ]
+}

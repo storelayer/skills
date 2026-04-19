@@ -1,5 +1,7 @@
 # MCP Tools Reference
 
+> **⚠️ Canonical source:** the authoritative tool table is in `SKILL.md` → *Available Tool Domains (84 tools)*. This file may include removed entries or miss newer ones.
+
 Complete list of tools available via the Storelayer MCP server.
 
 ## Connection

@@ -1,0 +1,11 @@
+{
+  "name": "storelayer",
+  "description": "Storelayer skills for Claude Code — build loyalty programs, promotions, wallets, referrals, and customer engagement on the Storelayer commerce platform.",
+  "author": {
+    "name": "Storelayer",
+    "url": "https://github.com/storelayer"
+  },
+  "homepage": "https://storelayer.io",
+  "repository": "https://github.com/storelayer/skills",
+  "license": "Apache-2.0"
+}

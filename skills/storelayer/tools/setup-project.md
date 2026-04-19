@@ -1,5 +1,7 @@
 # Setup Project Tool
 
+> **⚠️ Schema note:** promotion examples use legacy `itemsDiscountComputation`. Current API uses `applicationMethod` (see `SKILL.md` → Application Method Reference).
+
 Step-by-step checklist for setting up a new Storelayer loyalty project from scratch.
 
 ## Prerequisites

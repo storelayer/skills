@@ -1,5 +1,7 @@
 # Debug Rules Tool
 
+> **⚠️ Schema note:** some examples use the legacy `itemsDiscountComputation`. Current API uses `applicationMethod` (see `SKILL.md`). Debug workflow is unchanged.
+
 Systematic workflow for diagnosing why rules aren't firing or producing unexpected results.
 
 ## Symptom: Rule Not Firing

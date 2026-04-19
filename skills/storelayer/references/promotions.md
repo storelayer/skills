@@ -1,5 +1,7 @@
 # Promotions System
 
+> **⚠️ Stale schema warning:** examples below use the legacy `itemsDiscountComputation` field. The current API uses `applicationMethod` with `methodType: "standard" | "buyget" | "custom_script"`. See **Application Method Reference** in `SKILL.md` for the canonical schema. Concepts (stacking, coupons, limits) still apply; only the discount-computation shape changed.
+
 The promotions engine handles discounts, coupons, cart-level pricing logic, and promotion stacking.
 
 ## Key Concepts

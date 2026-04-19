@@ -1,84 +1,43 @@
 # Storelayer Skills
 
-Centralized AI skill packages for the [Storelayer](https://storelayer.io) loyalty & commerce platform.
+Claude Code plugin — skills for building loyalty programs, promotions, wallets, referrals, and customer engagement on [Storelayer](https://storelayer.io).
 
-## What is this?
-
-Skills are structured knowledge packages that AI coding agents (Claude Code, Codex, etc.) can load to become experts at building on the Storelayer platform. Instead of scattered documentation, skills provide:
-
-- **Decision trees** for choosing the right approach
-- **Reference docs** for each domain (wallet, promotions, referrals, etc.)
-- **Agent definitions** for specialized tasks
-- **Tools** for common operations
-- **Recipes** for proven patterns
-
-## Usage
-
-### Claude Code
-
-Add to your project's `.claude/settings.json`:
-
-```json
-{
-  "skills": ["path/to/storelayer-skills/skills/storelayer"]
-}
-```
-
-Or reference the MCP server:
-
-```json
-{
-  "mcpServers": {
-    "storelayer": {
-      "command": "npx",
-      "args": ["@storelayer/mcp-server"],
-      "env": {
-        "STORE_LAYER_API_URL": "https://api.storelayer.io",
-        "STORE_LAYER_API_KEY": "your-api-key",
-        "STORE_LAYER_PROJECT_ID": "your-project-id"
-      }
-    }
-  }
-}
-```
-
-### OpenAI Codex / Other Agents
-
-The skill follows the [Agent Skills Standard](https://agentskills.io) format and can be loaded by any compatible agent.
-
-## Structure
+## Install
 
 ```
-skills/storelayer/
-  SKILL.md              # Main skill entry point (decision trees, pipeline, recipes)
-  agents/
-    loyalty-builder.md  # Specialized agent for building loyalty programs
-    promo-engineer.md   # Specialized agent for promotion engineering
-    integration-dev.md  # Agent for event ingestion & webhook setup
-  references/
-    architecture.md     # Platform architecture & patterns
-    wallet.md           # Wallet/ledger system reference
-    promotions.md       # Promotion engine reference
-    referral.md         # Referral system reference
-    events.md           # Event tracking & rules reference
-    external-users.md   # Customer management reference
-    discount-scripts.md # Discount computation scripting guide
-    conditions.md       # Condition engine reference
-    mcp-tools.md        # MCP tool reference (all available tools)
-  tools/
-    setup-project.md    # Project setup checklist
-    test-promotion.md   # Promotion testing workflow
-    debug-rules.md      # Rule debugging workflow
-  assets/
-    storelayer-icon.svg # Brand icon
+/plugin marketplace add storelayer/skills
+/plugin install storelayer@storelayer
 ```
 
-## Contributing
+## Skills
 
-1. Fork this repo
-2. Edit or add skill files
-3. Test with your agent of choice
-4. Submit a PR
+- `storelayer` — main skill. Triggers on loyalty rules, promotions, discount codes, referrals, points, customer events, wallet operations.
+
+Content mirrors the upstream `storelayer-builder` skill at [`storelayer/pi-storelayer`](https://github.com/storelayer/pi-storelayer) — the canonical source. Sync with:
+
+```bash
+gh api repos/storelayer/pi-storelayer/contents/skills/storelayer-builder/SKILL.md --jq .content | base64 -d > skills/storelayer/SKILL.md
+# then re-add the `name: storelayer` frontmatter field
+```
+
+## Layout
+
+```
+.claude-plugin/
+  plugin.json         # plugin manifest
+  marketplace.json    # marketplace manifest (so this repo is its own marketplace)
+skills/
+  storelayer/
+    SKILL.md
+    references/
+    agents/
+    tools/
+    assets/
+```
+
+## Update
+
+Edit `skills/storelayer/**`, commit, push. Users run `/plugin marketplace update storelayer` to pull the latest.
 
 ## License
 
