@@ -53,7 +53,7 @@ Complete list of tools available via the Storelayer MCP server.
 | `wallet_list_transactions` | read  | Transaction history             |
 | `wallet_credit`            | write | Add assets (points, tokens)     |
 | `wallet_debit`             | write | Spend assets (FEFO order)       |
-| `wallet_adjust`            | write | Set absolute balance            |
+| `wallet_modify`            | write | Set balance to absolute target  |
 
 ## Rules / Project
 

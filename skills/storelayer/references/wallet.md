@@ -20,10 +20,11 @@ The wallet is a per-user ledger for tracking points, tokens, credits, and any cu
 
 ### Write Operations
 
-| Tool            | Description                     | Requires userId |
-| --------------- | ------------------------------- | --------------- |
-| `wallet_credit` | Add assets (earn points/tokens) | Yes             |
-| `wallet_debit`  | Spend assets (FEFO order)       | Yes             |
+| Tool            | Description                              | Requires userId |
+| --------------- | ---------------------------------------- | --------------- |
+| `wallet_credit` | Add assets (earn points/tokens)          | Yes             |
+| `wallet_debit`  | Spend assets (FEFO order)                | Yes             |
+| `wallet_modify` | Set balance to an absolute target amount | Yes             |
 
 ## Earning (Credit)
 
@@ -60,6 +61,32 @@ wallet_debit({
 ```
 
 Spending follows **FEFO** (First-Expire-First-Out) — assets expiring soonest are consumed first.
+
+## Modify Balance (Set to Absolute Value)
+
+```json
+wallet_modify({
+  "userId": "customer-123",
+  "assetType": "points",
+  "targetAmount": 60,
+  "description": "Manual balance correction",
+  "expiresAt": "2027-03-13T00:00:00Z"
+})
+```
+
+Sets the wallet balance for an asset type to an absolute target. The engine
+computes the delta against the current balance and records a single `adjust`
+transaction:
+
+- **target > current:** creates a new asset entry for the delta (honors
+  `expiresAt` / `tags`).
+- **target < current:** consumes existing entries FEFO (same ordering as spend).
+- **target == current:** no-op; no transaction written.
+
+Use this instead of chaining a redemption + reward when a rule needs to set
+the balance to a specific number. In rule actions, use type `modify` with
+config `{ assetType, targetAmount, userId?, description?, expiresIn?,
+expiresInUnit?, tags? }`.
 
 ## Checking Balance
 
