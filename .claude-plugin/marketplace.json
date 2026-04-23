@@ -11,6 +11,9 @@
       "name": "storelayer",
       "description": "Build loyalty programs, promotions, wallets, referrals, and customer engagement on Storelayer.",
       "source": "./",
+      "skills": [
+        "./skills/storelayer"
+      ],
       "category": "commerce"
     }
   ]
