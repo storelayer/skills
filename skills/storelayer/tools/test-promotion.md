@@ -14,19 +14,15 @@ Identify the promotion to test by ID.
 
 ### 2. Prepare Test Cart
 
-Create a realistic cart that should trigger the promotion:
+Create a realistic cart that should trigger the promotion. All prices in **cents** (integer), use `unitPrice` not `price`:
 
 ```json
 {
   "cart": {
+    "currencyCode": "USD",
     "items": [
-      { "id": "item-1", "price": 50.0, "quantity": 1, "category": "clothing" },
-      {
-        "id": "item-2",
-        "price": 25.0,
-        "quantity": 2,
-        "category": "accessories"
-      }
+      { "id": "item-1", "unitPrice": 5000, "quantity": 1, "category": "clothing" },
+      { "id": "item-2", "unitPrice": 2500, "quantity": 2, "category": "accessories" }
     ]
   }
 }
@@ -37,12 +33,14 @@ Create a realistic cart that should trigger the promotion:
 ```json
 promotions_evaluate_cart({
   "cart": {
+    "currencyCode": "USD",
     "items": [
-      { "id": "item-1", "price": 50.00, "quantity": 1, "category": "clothing" },
-      { "id": "item-2", "price": 25.00, "quantity": 2, "category": "accessories" }
+      { "id": "item-1", "unitPrice": 5000, "quantity": 1, "category": "clothing" },
+      { "id": "item-2", "unitPrice": 2500, "quantity": 2, "category": "accessories" }
     ]
   },
-  "couponCodes": []
+  "couponCodes": [],
+  "dryRun": true
 })
 ```
 

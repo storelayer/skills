@@ -110,15 +110,23 @@ Expressions support JavaScript operators, built-in functions, and arrow function
 
 ## Condition Fields (Promotions)
 
-Promotions use dot-notation paths into the cart:
+> **Critical:** Promotion conditions use the same `{{ $('key').field }}` expression syntax as rules. Dot-notation paths like `cart.total` are **not** resolved — they are treated as literal strings. Always wrap in `{{ }}` with `$()`.
 
-| Field                    | Description           |
-| ------------------------ | --------------------- |
-| `cart.total`             | Cart total amount     |
-| `cart.itemCount`         | Total item count      |
-| `cart.uniqueItemCount`   | Unique item count     |
-| `cart.items[0].price`    | First item's price    |
-| `cart.items[0].category` | First item's category |
+| Expression                              | Description           |
+| --------------------------------------- | --------------------- |
+| `{{ $('cart').total }}`                  | Cart total (in cents) |
+| `{{ $('cart').itemCount }}`              | Total item count      |
+| `{{ $('cart').uniqueItemCount }}`        | Unique item count     |
+| `{{ $('cart').items[0].unitPrice }}`     | First item's price    |
+| `{{ $('cart').items[0].category }}`      | First item's category |
+
+### Simple Mode (promotions_create only)
+
+The `conditionField` / `conditionOperator` / `conditionValue` shorthand in `promotions_create` accepts dot-notation like `cart.total`. The API converts this internally to expression syntax. **Do not** use dot-notation in the full `conditions` JSON — it will not resolve.
+
+### Cart Values Are in Cents
+
+All monetary values in the cart (`total`, `unitPrice`, `shippingTotal`) are integers in **cents**. A $100 minimum threshold = `rightValue: 10000`.
 
 ## Nested/Grouped Conditions
 

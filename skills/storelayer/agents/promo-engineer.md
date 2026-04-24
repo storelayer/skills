@@ -51,12 +51,18 @@ Always follow this cycle:
 
 ### 4. Script Writing Guide
 
-**Available context in scripts:**
+> **Two different syntaxes — don't mix them up:**
+> - **Condition `leftValue`** uses template expressions: `{{ $('cart').total }}`
+> - **Discount scripts** use bare JS: `$("cart").total`
+>
+> Dot-notation like `cart.total` in a condition `leftValue` is treated as a literal string and **never resolves**.
+
+**Available context in scripts (bare JS, no `{{ }}`):**
 
 ```javascript
 $("cart"); // Full cart object
-$("cart").items; // Array of { id, price, quantity, category, tags, ...custom }
-$("cart").total; // Cart total
+$("cart").items; // Array of { id, unitPrice, quantity, category, tags, ...custom }
+$("cart").total; // Cart total (cents)
 $("user"); // Current user (if userId provided)
 $("couponCodes"); // Applied coupon codes
 ```

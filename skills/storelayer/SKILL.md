@@ -435,7 +435,7 @@ Use `storelayer_wallet` action `get_balance` with user_id: `"user_123"`
 
 Promotions have:
 
-- **Conditions** — who/when the promotion applies (same syntax as rules)
+- **Conditions** — who/when the promotion applies. Uses `{{ $('cart').total }}` expression syntax (same as rules). **Do not** use bare dot-notation like `cart.total` in `leftValue` — it won't resolve.
 - **Application Method** — how the discount is calculated
 - **Validity** — start/end dates
 - **Coupon codes** — optional codes customers enter

@@ -50,7 +50,7 @@ promotions_create({
   "requiresCoupon": false,
   "conditions": {
     "conditions": [
-      { "leftValue": "cart.total", "operator": "gte", "rightValue": 25, "rightType": "number" }
+      { "leftValue": "{{ $('cart').total }}", "operator": "gte", "rightValue": 2500, "rightType": "number" }
     ],
     "combinator": "AND"
   },
@@ -80,9 +80,10 @@ promotions_create({
 ```json
 promotions_evaluate_cart({
   "cart": {
+    "currencyCode": "USD",
     "items": [
-      { "id": "item-1", "price": 25.00, "quantity": 1, "category": "shoes" },
-      { "id": "item-2", "price": 15.00, "quantity": 2 }
+      { "id": "item-1", "unitPrice": 2500, "quantity": 1, "category": "shoes" },
+      { "id": "item-2", "unitPrice": 1500, "quantity": 2 }
     ]
   },
   "couponCodes": ["SAVE20"],
@@ -145,3 +146,5 @@ promotions_bulk_create_coupons({
 - **Script field names** — must match actual cart item properties. Check with real cart data.
 - **Stacking** — `exclusive` blocks everything. Use `stackable` for combinable discounts.
 - **notApplied** — always check this array for debugging. It tells you exactly which conditions failed.
+- **Condition leftValue must use expression syntax** — `{{ $('cart').total }}` works; bare `cart.total` is treated as a literal string and never resolves. See `conditions.md` for details.
+- **Cart values are in cents** — `total`, `unitPrice`, `shippingTotal` are integers in cents. A $25 threshold = `rightValue: 2500`.
