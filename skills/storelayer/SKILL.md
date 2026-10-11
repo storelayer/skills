@@ -2,137 +2,181 @@
 name: storelayer
 license: Apache-2.0
 description: >
-  Build loyalty programs on Storelayer: purchase-reward rules, wallets (points,
-  stamps, credits), basket promotions and coupons, discount scripts, referrals,
-  custom lookup tables, and event/workflow debugging. Use when creating,
-  changing, integrating, testing, or debugging any Storelayer behavior, or when
-  designing a loyalty or discount feature for an application. Read the live
-  docs and API reference for current concepts and contracts.
+  Build loyalty and commerce features on Storelayer: event-driven reward rules,
+  multi-asset wallets (points, stamps, credits), basket promotions, coupons and
+  discount scripts, points redemption at checkout, referral programs, custom
+  lookup tables, and HTTP integrations. Use when designing, building, integrating,
+  testing, or debugging any Storelayer behavior, or when a product needs loyalty,
+  rewards, or discount logic. Read the live docs for current contracts and recipes.
 ---
 
 # Build with Storelayer
 
-Storelayer holds the state and execution behind customer loyalty. Your application
-sends **events** and **carts**; Storelayer evaluates **rules**, records **wallet**
-movements, computes **promotion** discounts, and tracks **referrals**. A project owns
-its configuration and customer data; customers are external user IDs your application
-defines. Your code owns the business workflow; Storelayer owns the loyalty state.
+Storelayer is a project-scoped loyalty engine. Your backend sends **events**
+(`purchase`, `user_registered`, …) and **carts**; Storelayer runs **rules** that move
+**wallet** balances, computes **promotion** discounts per cart line, and tracks
+**referrals**. Customers are external user IDs your application owns. Your code owns
+the business workflow and the source of truth for orders and prices; Storelayer owns
+loyalty state and the decision logic you configure in it.
 
 ## Read the live docs
 
 **The live docs are the source of truth. Read them as part of the task.** This skill
-gives direction and the traps that cost the most time; the docs carry concepts and
-worked workflows, and the API reference carries endpoint contracts.
+gives direction and the traps that cost the most time; the docs carry verified
+request bodies, recipes, and limits.
 
-- Start with the [documentation index](https://docs.storelayer.io/llms.txt). Fetch
-  only the pages the task needs.
-- Every docs page has a Markdown version: append `.md` to the path, e.g.
-  [wallet concepts](https://docs.storelayer.io/concepts/wallets.md). Convert
-  extensionless links to `.md` when useful.
-- Endpoint paths, auth, request bodies, and responses live in the
-  [API reference](https://api.storelayer.io/docs) and its
-  [OpenAPI document](https://api.storelayer.io/openapi.json). Select only the paths
-  you need rather than loading the whole spec. Do not copy payload shapes from memory
-  or from this skill.
-- If a guide and the API reference disagree, follow the API reference for request
-  structure and report the discrepancy.
-- If live access is unavailable, say so, rely on installed API types or user-provided
-  docs, and avoid inventing version-dependent details.
+- Start with the [documentation index](https://docs.storelayer.io/llms.txt). Fetch only
+  the pages the task needs.
+- Every page has a Markdown version: append `.md`, e.g.
+  [conditions and resources](https://docs.storelayer.io/guides/conditions.md).
+- For exact request and response schemas, select paths from the
+  [OpenAPI document](https://api.storelayer.io/openapi.json) with `jq` instead of loading
+  it whole (it is large). The [API reference](https://api.storelayer.io/docs) is the
+  browsable version.
+- If a guide and OpenAPI disagree, trust the guide for behavior (it was verified against
+  the engine) and OpenAPI for field names, then mention the discrepancy.
+- If live access fails, say so and avoid inventing version-dependent details.
 
-| Task | Start here |
+| Task | Start here; follow the relevant details |
 | --- | --- |
-| Orient, first read-only call | [Introduction](https://docs.storelayer.io/getting-started/introduction.md), [Quick start](https://docs.storelayer.io/getting-started/quick-start.md) |
-| Credentials, project access | [Authentication](https://docs.storelayer.io/getting-started/authentication.md), [Projects](https://docs.storelayer.io/concepts/projects.md) |
-| Find the right endpoint | [Using the API reference](https://docs.storelayer.io/api/overview.md) |
-| Customer identity and profiles | [Customers](https://docs.storelayer.io/concepts/customers.md), [Customer data](https://docs.storelayer.io/api/customers.md) |
-| Award, spend, or correct balances | [Wallets](https://docs.storelayer.io/concepts/wallets.md), [Working with wallets](https://docs.storelayer.io/api/wallets.md) |
-| Reward purchases or signups | [Loyalty events](https://docs.storelayer.io/concepts/loyalty-events.md), [Loyalty program guide](https://docs.storelayer.io/guides/loyalty-program.md), [Sending events](https://docs.storelayer.io/api/events.md) |
-| Rule conditions, resources, expressions | [Conditions and resources](https://docs.storelayer.io/guides/conditions.md) |
-| Basket discounts, coupons, limits | [Promotions](https://docs.storelayer.io/concepts/promotions.md), [Creating promotions](https://docs.storelayer.io/guides/creating-promotions.md), [Checkout integration](https://docs.storelayer.io/api/promotions.md) |
-| Custom discount logic | [Discount scripts](https://docs.storelayer.io/guides/discount-scripts.md) |
-| Referral programs | [Referrals](https://docs.storelayer.io/concepts/referrals.md), [Referral programs guide](https://docs.storelayer.io/guides/referral-programs.md), [Referral integration](https://docs.storelayer.io/api/referrals.md) |
-| Tiers, catalogs, blocklists | [Custom tables](https://docs.storelayer.io/guides/custom-storage.md), [Catalog data](https://docs.storelayer.io/api/catalog.md) |
-| Store-specific behavior | [Store and facility data](https://docs.storelayer.io/api/stores.md) |
+| First calls, base URL, envelope, errors | [Quick start](https://docs.storelayer.io/getting-started/quick-start.md), [API overview](https://docs.storelayer.io/api/overview.md) |
+| Keys, scoping, MCP setup | [Authentication](https://docs.storelayer.io/getting-started/authentication.md), [Agents](https://docs.storelayer.io/getting-started/agents.md) |
+| Reward purchases, signups, visits | [Loyalty program recipe](https://docs.storelayer.io/guides/loyalty-program.md), [Loyalty events](https://docs.storelayer.io/concepts/loyalty-events.md), [Sending events](https://docs.storelayer.io/api/events.md) |
+| Expressions, operators, resources | [Conditions and resources](https://docs.storelayer.io/guides/conditions.md) |
+| Award, spend, set balances | [Wallets](https://docs.storelayer.io/concepts/wallets.md), [Wallet API](https://docs.storelayer.io/api/wallets.md) |
+| Basket discounts and coupons | [Promotions](https://docs.storelayer.io/concepts/promotions.md), [Creating promotions](https://docs.storelayer.io/guides/creating-promotions.md), [Checkout integration](https://docs.storelayer.io/api/promotions.md) |
+| Custom discount math, points redemption | [Discount scripts](https://docs.storelayer.io/guides/discount-scripts.md) |
+| Referral programs | [Referrals](https://docs.storelayer.io/concepts/referrals.md), [Referral recipe](https://docs.storelayer.io/guides/referral-programs.md), [Referral API](https://docs.storelayer.io/api/referrals.md) |
+| Customer profiles | [Customers](https://docs.storelayer.io/concepts/customers.md), [Customer API](https://docs.storelayer.io/api/customers.md) |
+| Tier tables, eligible SKUs, blocklists | [Custom tables](https://docs.storelayer.io/guides/custom-storage.md) |
+| Products, stores, location rules | [Catalog](https://docs.storelayer.io/api/catalog.md), [Stores](https://docs.storelayer.io/api/stores.md) |
 | Call external services from rules | [HTTP integrations](https://docs.storelayer.io/guides/webhooks.md) |
-| A reward or discount did not happen | [Debugging rules](https://docs.storelayer.io/guides/debugging.md), [Workflows](https://docs.storelayer.io/guides/workflows.md) |
+| A reward or discount did not happen | [Debugging](https://docs.storelayer.io/guides/debugging.md), [Workflows](https://docs.storelayer.io/guides/workflows.md) |
+| Project config, cloning, roles | [Projects](https://docs.storelayer.io/concepts/projects.md) |
 | Server integration code | [REST](https://docs.storelayer.io/sdks/rest.md), [JavaScript](https://docs.storelayer.io/sdks/javascript.md) |
 
-## Pick the primitive
+## Find the useful shape
 
-Start from the outcome the customer sees, then choose the smallest primitive:
+Start from what the customer sees (a balance, a discount line, a referral bonus) and work
+back to the smallest primitive. Keep order truth, prices, refunds policy, and
+deduplication in the user's backend; put the loyalty decision in Storelayer.
 
-- **Rule** (event → conditions → action): recurring rewards such as points for a
-  purchase, a welcome bonus, or a tier multiplier.
-- **Wallet operation**: a one-off award, spend, or correction. Award, spend, and
-  set-to-absolute-balance are different operations; match the business request.
-- **Promotion**: a discount on a basket. Prefer a `standard` or `buyget` application
-  method; use `custom_script` only when they cannot express the offer.
-- **Referral**: attribution (code, validate, apply) is separate from the reward, which
-  follows a qualifying business event.
-- **Custom table**: maintained lookup data (tier thresholds, eligible SKUs) that rules
-  and promotions bind as a resource.
+- **Recurring reward → rule.** An event resource binds the rule to an event type,
+  conditions gate it, actions run: `reward`, `redemption`, `modify`, `emit_event`,
+  `update_user`, `custom_table`, `integration`, referral actions. Amounts can be
+  expressions: `"{{ Math.floor($('event').payload.amount / 100) }}"` is points per dollar.
+- **State-dependent reward → declare the state.** Tiers, balances, history, or table
+  rows reach a rule only through resources the rule declares. For "10 stamps → free
+  coffee", resources are resolved before actions run, so chain a second event with
+  `emit_event` and check the balance there. Explore the stamp-card and tier patterns in
+  the [loyalty program recipe](https://docs.storelayer.io/guides/loyalty-program.md).
+- **Configuration that changes → custom table.** Tier thresholds or eligible SKUs in a
+  table bound as a `custom_table` resource beat hard-coding values into many rules.
+- **One-off balance change → wallet API.** `earn` adds, `spend` consumes
+  (first-expiring-first-out, all-or-nothing), `modify` sets an absolute target. Pick by
+  the business wording: "give 100" vs "correct to 100" are different operations.
+- **Basket discount → promotion.** Prefer `standard` (percentage/fixed on items, order,
+  or shipping, `each` vs `across` allocation) and `buyget`; use `custom_script` only for
+  math they cannot express. Coupons, validity windows, usage caps, per-user limits,
+  budgets, and `stackingMode` constrain it.
+- **Pay with points → promotion + wallet resource.** The cart carries
+  `redemptions: [{ type, amount }]`, a script converts them to item discounts and reports
+  the `redemption` it used, and a recorded checkout spends the points. Follow the worked
+  example in [discount scripts](https://docs.storelayer.io/guides/discount-scripts.md).
+- **Referral → attribution plus a reward rule.** Codes, validation, and apply record who
+  referred whom; the reward is a rule on the qualifying event (for example the referee's
+  first purchase) that rewards both sides. Validation is not a reward.
 
-Preserve the user's stack and scope. Reach for an existing rule or promotion before
-creating a new one that duplicates it.
+For an open-ended request, propose the few shapes that fit and recommend one. For a
+concrete request, pick the shape and build.
 
-## Work the conversation
+## Rules and expressions
 
-1. **Pin the outcome in concrete terms**: "A purchase of at least $50 earns 100 points,
-   once per order." Ask only what is missing: project, trigger event, thresholds and
-   units, reward asset type, duplicate and refund policy.
-2. **Inspect before changing**: read project config, existing rules, resources, and the
-   customer's current state. Use a test project and test customer for anything that
-   changes balances or consumes usage.
-3. **Show the plan** (trigger, conditions, action, limits) and get confirmation before
-   creating or activating anything.
-4. **Create in draft or test form**, then verify against real state (see below).
+- **Expressions read resources only through `$('key')`**, and only when the whole string
+  is one `{{ … }}`. `{{ event.userId }}` is `undefined`; `"Order {{ … }}"` stays literal.
+  JS-like operators, `??`, ternaries, `Math`, and arrow functions work; template literals
+  and object literals do not. Errors evaluate to `undefined`, not an exception.
+- **Event data lives under `payload`.** The rule context is
+  `{ event: { type, userId, payload } }`, so use `$('event').payload.amount`, never
+  `$('event').amount`.
+- **Resources must exist and be declared.** Over REST, nothing is auto-created: register
+  the resource (`POST /projects/{projectId}/resources`), then list it in the rule's
+  `resources`. A rule needs an `event` resource; an undeclared resource is silently
+  `undefined`. (The MCP `add_rule` tool can infer and create resources; REST cannot.)
+- **A rule without an event-type binding runs for every event.**
+- **Conditions are one flat group** (`combinator` AND/OR, no nesting). Numeric operators
+  match only numbers: send `rightValue` as a JSON number or set `rightType: "number"`.
+  When `rightValue` is itself an expression, omit `rightType`: live processing treats it
+  as `NaN` even though `/rules/test` passes.
+- **`/rules/test` resolves nothing.** Pass the context exactly as the rule will see it.
+  Use `POST /projects/{projectId}/resources/resolve` to see what resources really return.
+  `/rules/execute` and `/rules/execute-actions` perform real actions.
 
-## Traps that cost the most time
+## Money, carts, and checkout
 
-Confirm each against the current docs and API reference; these are reminders, not
-contracts.
+- **Money is integer minor units everywhere** (`unitPrice: 2500` is $25.00). Write
+  thresholds as cents and say so: "$50 → 5000".
+- A cart needs `items[]` (`id`, `quantity`, integer `unitPrice`) and `currencyCode`;
+  fields are camelCase. The engine recomputes `subtotal`. **The catalog is not read during
+  evaluation**, so any attribute a condition uses (category, brand) must be on the cart.
+- **Preview with `dryRun: true`** (nothing consumed; `includeInactive` /
+  `includeInactiveIds` let you preview drafts). **Record with `dryRun: false`**, which
+  needs `cart.userId` and `transactionId`. Retrying the same `transactionId` with the same
+  body is safe and returns `duplicate: true`; a different body gets 409.
+- Inspect `notApplied` reasons (`conditions_not_met`, `coupon_required`,
+  `excluded_by_stacking`, `computation_no_discount`, …) before changing a promotion.
+- **Discount scripts see normalised per-unit items** with `itemId` and `price` (not
+  `id`/`unitPrice`/`quantity`) and must return `{ items: [{ id, amount }] }`; a bare
+  array or `NaN` amounts yield `computation_no_discount`. **Write scripts in plain
+  JavaScript**: TypeScript is not compiled at evaluation and fails at checkout.
+- Cancelling a usage releases caps and budget but does **not** refund redeemed points.
 
-- **Money is integer minor units** (cents). `unitPrice: 2500` is $25.00; `25` is
-  $0.25. This holds for cart prices, shipping and tax totals, fixed discounts, and
-  discount-script amounts. State the unit when you write a threshold.
-- **Cart and event fields are camelCase** (`unitPrice`, `productId`, `currencyCode`,
-  `userId`). Ingestion rejects unknown fields rather than stripping them.
-- **Expressions read named resources**: `{{ $('resource').field }}`. An event's
-  top-level `type` is different from fields inside `payload`; use the payload path your
-  event actually has. Do not use bare dot-notation such as `cart.total` as a
-  `leftValue`.
-- **Do not assume resources are auto-created.** Inspect and bind the resources a rule
-  or promotion needs, and explicitly configure custom-table, HTTP, and database
-  resources. A missing resource is different from a false condition.
-- **Discount scripts use a different item shape.** The incoming cart has `id`,
-  `unitPrice`, `quantity`; inside the script, normalized items expose `itemId` and
-  `price` (already the line total). Read `price`, return `{ items: [{ id, amount }] }`
-  with real item IDs, and never a bare array or `NaN`; the failure shows as
-  `computation_no_discount`.
-- **Preview is not checkout.** `dryRun: true` previews and consumes nothing.
-  `dryRun: false` records usage and can spend coupons, budget, and wallet assets; it
-  needs `cart.userId` and a nonempty `transactionId`.
-- **Accepted is not applied.** Event ingestion queues work. Follow the workflow, then
-  read the wallet or ledger. The same event ingested twice can award twice, so
-  deduplicate at your event boundary; an order ID in the payload does not do it.
-- **A passing condition test proves one comparison**, not that the action will succeed.
-- **A customer ID is not a credential.** Keep project keys on the backend and
-  authorize the customer in your backend before forwarding a request.
+## Events, wallets, and delivery
 
-## Verify the outcome
+- **Accepted is not applied.** `POST /ingest/events` returns `201 { id: "evt_…" }` before
+  rules run. The workflow ID equals the event ID; poll
+  `GET /projects/{projectId}/workflows/{id}` until it exists, then read `rules[]` and
+  `actions[]`, then the wallet.
+- Ingest keeps only `type`, `userId`, `payload`; other top-level fields are silently
+  dropped.
+- **Neither ingest nor wallet writes deduplicate.** Each call creates a new event or
+  transaction; `referenceId` is not checked. After a timeout, look up the workflow or
+  transactions before retrying, and deduplicate orders in the user's backend.
+- A failing wallet action (for example `Insufficient balance`) fails the workflow, but
+  actions that already ran stay applied.
+- Wallet REST responses use `data.assets.<type>.balance`. Inside rules and promotions,
+  `$('wallet').points.balance` and `$('wallet').balances.points` both work.
 
-Do not stop at a 200 response. Record the starting state, run one qualifying example,
-wait for processing, then inspect the ledger, usage record, or referral record. Also run
-a non-qualifying example and the exact boundary (e.g. 4999, 5000, 5001). Report which
-of these you actually verified: accepted, rule matched, action succeeded, balance
-changed. After an uncertain write, inspect existing state before retrying.
+## Access and tools
 
-## Credentials and tools
+- Base URL `https://api.storelayer.io`. Send `Authorization: Bearer <key>`; project keys
+  look like `sk_…` and are bound to one project (another `projectId` → 403). `X-API-Key`
+  is accepted only on ingest. Keep keys server-side and authorize the shopper in the
+  backend: a `userId` is not a credential.
+- Responses use `{ success, data }` / `{ success: false, error: { code, message } }`;
+  schema validation failures return an issue array instead.
+- Table DDL and raw SQL need the `storage:admin` scope, which API keys do not have today;
+  use the dashboard.
+- Live work needs a key in `STORE_LAYER_API_KEY`. The MCP server
+  (`npx -y @storelayer/mcp-server`, env `STORE_LAYER_API_KEY`, optional
+  `STORE_LAYER_API_URL`) exposes the same operations as tools; the project comes from the
+  key.
 
-Live operations need a project API key, normally in `STORE_LAYER_API_KEY`. Without one,
-help design the integration and say what remains unverified. Never put keys in browser
-code, repositories, or transcripts.
+## Work the change and verify it
 
-When Storelayer MCP tools are connected, they are a convenient way to perform the same
-operations. The docs and API reference still define the behavior.
+1. **Pin the outcome in testable terms**: "a purchase of at least $50 (5000) earns 100
+   points, once per order; refunds reverse it". Ask only for what is missing.
+2. **Inspect first**: project config, existing rules, resources, promotions, and the test
+   customer's balance. Prefer extending what exists over adding a duplicate.
+3. **Show the plan** (resources, rule or promotion body, limits) and confirm before
+   creating or activating. Use a test project or test customer for anything that moves
+   value.
+4. **Test conditions at the boundary** (4999 / 5000 / 5001) and preview carts with
+   `dryRun: true`, including one non-qualifying case.
+5. **Run once for real and read the state**: the workflow's rule and action results, the
+   ledger entry, the promotion usage. Report which of these you actually verified
+   (accepted, matched, action succeeded, balance changed) and what remains unverified.
 
+When something fails, find the first divergence: event accepted → rule bound to the type
+→ resources resolved → each condition's resolved values → action result → persisted
+state. Do not re-send an event "to see if it works"; it may award twice.
