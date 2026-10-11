@@ -48,11 +48,7 @@ gh api repos/storelayer/pi-storelayer/contents/skills/storelayer-builder/SKILL.m
   marketplace.json    # marketplace manifest
 skills/
   storelayer/
-    SKILL.md          # main skill definition
-    references/       # domain deep-dives (wallet, promotions, events, etc.)
-    agents/           # sub-agent definitions
-    tools/            # tool definitions (debug, setup, test)
-    assets/           # icons, images
+    SKILL.md          # the whole skill; content is read live from docs.storelayer.io
 scripts/
   package_skill.sh    # package into .skill zip for distribution
 ```
