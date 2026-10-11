@@ -33,26 +33,28 @@ npx skills add ./dist/storelayer.skill
 
 - `storelayer` — main skill. Triggers on loyalty rules, promotions, discount codes, referrals, points, customer events, wallet operations.
 
-Content mirrors the upstream `storelayer-builder` skill at [`storelayer/pi-storelayer`](https://github.com/storelayer/pi-storelayer) — the canonical source. Sync with:
+## Source of truth
 
-```bash
-gh api repos/storelayer/pi-storelayer/contents/skills/storelayer-builder/SKILL.md --jq .content | base64 -d > skills/storelayer/SKILL.md
-# then re-add the `name: storelayer` frontmatter field
-```
+Maintain the skill directly in [`skills/storelayer/SKILL.md`](skills/storelayer/SKILL.md).
+This repository is canonical; do not overwrite the skill from `pi-storelayer`.
+
+The skill reads [live Markdown documentation](https://docs.storelayer.io/llms.txt)
+for concepts and workflows, then uses the existing [API reference](https://api.storelayer.io/docs)
+and [OpenAPI contract](https://api.storelayer.io/openapi.json) for endpoint details.
+For live project operations, supply `STORE_LAYER_API_KEY` in the agent's environment.
+
+The skill carries decision guidance; concepts and cookbooks live in the docs site.
+Endpoint specifications stay in the existing API reference. Update guides when a contract change affects their workflows.
+Domain references and cookbooks live on the docs site so installed skills do not carry stale copies.
 
 ## Layout
 
 ```
-.claude-plugin/
-  plugin.json         # plugin manifest
-  marketplace.json    # marketplace manifest
-skills/
-  storelayer/
-    SKILL.md          # main skill definition
-    references/       # domain deep-dives (wallet, promotions, events, etc.)
-    agents/           # sub-agent definitions
-    tools/            # tool definitions (debug, setup, test)
-    assets/           # icons, images
+.claude-plugin/        # Claude Code marketplace metadata
+skills/storelayer/
+  SKILL.md            # canonical skill, live docs and HTTP workflow
+  agents/claude.yaml  # display metadata
+  assets/             # skill icon
 scripts/
   package_skill.sh    # package into .skill zip for distribution
 ```
