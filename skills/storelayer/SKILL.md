@@ -472,11 +472,14 @@ Promotions using `custom_script` method can access wallet and redemptions:
 
 **⚠️ IMPORTANT: Discounts must target actual cart item IDs. Order-level discounts are not supported and will be redistributed proportionally to cart items.**
 
-**⚠️ NOTE: Cart items use `itemId` field (not `id`). Use `item.itemId` to reference items.**
+**⚠️ CRITICAL: Inside the script, normalised cart items expose `itemId` and `price` (effective line total) only — NOT `id`, `unitPrice`, or `quantity`. Read `item.price` for the item's contribution to the cart; reading `item.unitPrice` returns `undefined` and any arithmetic on it produces `NaN`, which the parser silently drops → `computation_no_discount`.**
+
+**⚠️ CRITICAL: Scripts MUST return `{ items: [...], suggestion? }`. A raw array (the previous shape) returns `computation_no_discount` with the message *"Computation script must return { items: [{ id, amount }], suggestion? }"*.**
 
 ```javascript
 var redemptions = $("cart").redemptions || [];
 var items = $("cart").items || [];
+// `cart.total` is the derived total (cents). `items[].price` is each item's effective contribution.
 var cartTotal = $("cart").total || 0;
 var results = [];
 
@@ -490,10 +493,10 @@ for (var i = 0; i < redemptions.length; i++) {
 
   if (actualPoints <= 0) continue;
 
-  // Distribute discount proportionally across items
+  // Distribute discount proportionally across items using `item.price` (already includes quantity).
   for (var j = 0; j < items.length; j++) {
     var item = items[j];
-    var itemTotal = item.unitPrice * item.quantity;
+    var itemTotal = item.price;
     var itemProportion = itemTotal / cartTotal;
     var itemDiscount = Math.floor(actualDiscount * itemProportion);
 
@@ -507,11 +510,11 @@ for (var i = 0; i < redemptions.length; i++) {
     }
 
     if (itemDiscount > 0) {
-      results.push({ id: item.itemId, amount: itemDiscount }); // Use itemId, not id
+      results.push({ id: item.itemId, amount: itemDiscount }); // Use itemId (not id)
     }
   }
 
-  // Attach redemption info to last item
+  // Attach redemption info to the LAST result entry
   if (results.length > 0) {
     results[results.length - 1].redemption = {
       type: r.type,
@@ -519,10 +522,11 @@ for (var i = 0; i < redemptions.length; i++) {
     };
   }
 }
-return results;
+// Wrap in { items: [...] } — engine requires this shape.
+return { items: results };
 ```
 
-The script must return `redemption: { type, amount }` on each result entry to signal what to debit. On `dryRun: false`, the system spends these computed amounts via `wallet.spend()`.
+On `dryRun: false`, the system spends the computed redemption amounts via `wallet.spend()`.
 
 Response includes:
 
@@ -762,7 +766,7 @@ promotions_create({
   "applicationMethod": {
     "methodType": "custom_script",
     "language": "javascript",
-    "script": "// Prices are integers in cents\n// 10 points = $5 = 500 cents, so 1 point = 50 cents\n// Discount is distributed proportionally across cart items\nvar redemptions = $('cart').redemptions || [];\nvar items = $('cart').items || [];\nvar cartTotal = $('cart').total || 0;\nif (items.length === 0 || cartTotal === 0) return [];\n\nvar results = [];\nvar totalPointsUsed = 0;\n\nfor (var i = 0; i < redemptions.length; i++) {\n  var r = redemptions[i];\n  if (r.type !== 'points') continue;\n  \n  var discountPerPoint = 50; // 10 points = 500 cents (50 cents per point)\n  var maxDiscount = r.amount * discountPerPoint;\n  var actualDiscount = Math.min(maxDiscount, cartTotal);\n  var actualPoints = Math.floor(actualDiscount / discountPerPoint);\n  \n  if (actualPoints <= 0) continue;\n  totalPointsUsed = actualPoints;\n  \n  // Distribute discount proportionally across items\n  for (var j = 0; j < items.length; j++) {\n    var item = items[j];\n    var itemTotal = item.unitPrice * item.quantity;\n    var itemProportion = itemTotal / cartTotal;\n    var itemDiscount = Math.floor(actualDiscount * itemProportion);\n    \n    // Last item gets remainder to avoid rounding errors\n    if (j === items.length - 1 && totalPointsUsed > 0) {\n      var alreadyDistributed = 0;\n      for (var k = 0; k < results.length; k++) {\n        alreadyDistributed += results[k].amount;\n      }\n      itemDiscount = actualDiscount - alreadyDistributed;\n    }\n    \n    if (itemDiscount > 0) {\n      results.push({ id: item.itemId, amount: itemDiscount, redemption: null });  // Use itemId!\n    }\n  }\n}\n\n// Attach redemption info to last item\nif (results.length > 0 && totalPointsUsed > 0) {\n  results[results.length - 1].redemption = { type: 'points', amount: totalPointsUsed };\n}\nreturn results;"
+    "script": "// Prices are integers in cents\n// 10 points = $5 = 500 cents, so 1 point = 50 cents\n// Discount is distributed proportionally across cart items\n//\n// IMPORTANT: Inside the script, cart items are normalised — they expose `itemId` and\n// `price` (effective line total, already includes quantity), NOT `id`, `unitPrice`, or\n// `quantity`. The script MUST return `{ items: [...], suggestion? }`; a bare array will\n// be rejected with `computation_no_discount`.\nvar redemptions = $('cart').redemptions || [];\nvar items = $('cart').items || [];\nvar cartTotal = $('cart').total || 0;\nif (items.length === 0 || cartTotal === 0) return { items: [] };\n\nvar results = [];\nvar totalPointsUsed = 0;\n\nfor (var i = 0; i < redemptions.length; i++) {\n  var r = redemptions[i];\n  if (r.type !== 'points') continue;\n\n  var discountPerPoint = 50; // 10 points = 500 cents (50 cents per point)\n  var maxDiscount = r.amount * discountPerPoint;\n  var actualDiscount = Math.min(maxDiscount, cartTotal);\n  var actualPoints = Math.floor(actualDiscount / discountPerPoint);\n\n  if (actualPoints <= 0) continue;\n  totalPointsUsed = actualPoints;\n\n  // Distribute discount proportionally across items using `item.price` (already includes quantity).\n  for (var j = 0; j < items.length; j++) {\n    var item = items[j];\n    var itemTotal = item.price;\n    var itemProportion = itemTotal / cartTotal;\n    var itemDiscount = Math.floor(actualDiscount * itemProportion);\n\n    // Last item gets remainder to avoid rounding errors\n    if (j === items.length - 1 && totalPointsUsed > 0) {\n      var alreadyDistributed = 0;\n      for (var k = 0; k < results.length; k++) {\n        alreadyDistributed += results[k].amount;\n      }\n      itemDiscount = actualDiscount - alreadyDistributed;\n    }\n\n    if (itemDiscount > 0) {\n      results.push({ id: item.itemId, amount: itemDiscount, redemption: null });  // Use itemId!\n    }\n  }\n}\n\n// Attach redemption info to the LAST result entry\nif (results.length > 0 && totalPointsUsed > 0) {\n  results[results.length - 1].redemption = { type: 'points', amount: totalPointsUsed };\n}\nreturn { items: results };"
   },
   "resources": {
     "wallet": { "entity": "wallet", "userIdExpression": "{{ $('cart').userId }}" }
